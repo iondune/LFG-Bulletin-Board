@@ -369,12 +369,7 @@ function GBB.Popup_Minimap(frame,notminimap)
 	GBB.PopupDynamic:AddItem("",true)
 	GBB.PopupDynamic:AddItem(GBB.L["CboxNotifyChat"],false,GBB.DB,"NotifyChat")
 	GBB.PopupDynamic:AddItem(GBB.L["CboxNotifySound"],false,GBB.DB,"NotifySound")
-	
-	if notminimap~=false then 
-		GBB.PopupDynamic:AddItem("",true)
-		GBB.PopupDynamic:AddItem(GBB.L["CboxLockMinimapButton"],false,GBB.DB.MinimapButton,"lock")
-		GBB.PopupDynamic:AddItem(GBB.L["CboxLockMinimapButtonDistance"],false,GBB.DB.MinimapButton,"lockDistance")
-	end
+
 	GBB.PopupDynamic:AddItem("",true)
 	GBB.PopupDynamic:AddItem(GBB.L["BtnCancel"],false)
 		
@@ -511,8 +506,12 @@ function GBB.Init()
 		
 	GBB.CreateTagList()		
 
-	GBB.MinimapButton.Init(GBB.DB.MinimapButton, GBB.Icon,
-		function(self,button) --onclick
+	local miniButton = LibStub("LibDataBroker-1.1"):NewDataObject("MyLittleAddon", {
+		type = "data source",
+		text = "LFG Bulletin Board",
+		icon = "Interface\\Icons\\spell_holy_prayerofshadowprotection",
+
+		OnClick = function(self, button)
 			if button=="LeftButton" then 
 				GBB.ToggleWindow()
 			else
@@ -520,9 +519,18 @@ function GBB.Init()
 				--GBB.Options.Open(2)
 			end
 		end,
-		GBB.Title
-	)	
-	
+
+		OnTooltipShow = function(tooltip)
+			if not tooltip or not tooltip.AddLine then return end
+			tooltip:AddLine("LFG Bulletin Board")
+			tooltip:AddLine(format("|cFFCFCFCF%s:|r %s", "Left Click", "LFG Bulletin Board"))
+			tooltip:AddLine(format("|cFFCFCFCF%s:|r %s", "Right Click", "Context Menu"))
+		end,
+	})
+
+	local icon = LibStub("LibDBIcon-1.0", true)
+	icon:Register("LFG-Bulletin-Board", miniButton, GBB.DBChar)
+
 	GBB.FramePullDownChannel=CreateFrame("Frame", "GBB.PullDownMenu", UIParent, "UIDropDownMenuTemplate")
 	GroupBulletinBoardFrameTitle:SetFontObject(GBB.DB.FontSize)
 	if GBB.DB.AnnounceChannel == nil then
